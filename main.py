@@ -7,6 +7,7 @@ TABLE_NAME1 = 'PEDIDOS_VENDAS_PARCELAS'
 TABLE_NAME2 = 'PEDIDOS_VENDAS'
 TABLE_NAME3 = 'PEDIDOS_VENDAS_ITENS'
 TABLE_NAME4 = 'PAGAR_TITULOS'
+TABLE_NAME5 = 'CLIENTES'
 ########################################################################
 SELECT1 = 'select PVP_PDV_NUMERO, PVP_VENCIMENTO, PVP_VALOR from %s ' \
             % (TABLE_NAME1)
@@ -16,6 +17,7 @@ SELECT3 = 'select PVI_NUMERO, PVI_QUANTIDADE, PVI_VL_CUSTO_ITEM from %s ' \
             % (TABLE_NAME3)
 SELECT4 = 'select PAG_IDENTIFICADOR, PAG_CLI_CODIGO, PAG_VALORTITULO, PAG_VENCIMENTO, PAG_STL_CODIGO from %s ' \
             % (TABLE_NAME4)
+SELECT5 = 'select CLI_NOME, CLI_CODIGO from %s' % (TABLE_NAME5)
 ########################################################################
 con = fdb.connect(dsn=dst_path, user='SYSDBA', password='masterkey', charset='UTF8')
 cur = con.cursor()
@@ -35,7 +37,12 @@ df3 = pd.DataFrame(table_rows3)
 cur.execute(SELECT4)
 table_rows4 = cur.fetchall()
 df4 = pd.DataFrame(table_rows4)
-
+####################################################################################
+cur.execute(SELECT5)
+table_rows5 = cur.fetchall()
+df7 = pd.DataFrame(table_rows5)
+####################################################################################
+df6 = df4
 #PEDIDOS FILTRADOS POR DATA
 df1[1] = pd.to_datetime(df1[1], format='%Y-%m-%d')
 df1 = df1.groupby(0).apply(lambda x: x)
@@ -56,7 +63,9 @@ df5.loc[df4[4] != 6, 4] = 'NÃO PAGO'
 
 df4 = df4[df4[4] == 6]
 df4.loc[df4[4] == 6, 4] = 'PAGO'
+########################################################################
 
+m = pd.merge(df6, df7, how='inner', on=1)
 
 with pd.ExcelWriter(excel_path1) as writer:
     df1.to_excel(writer, index=False, sheet_name='PARCELAS')
@@ -64,3 +73,4 @@ with pd.ExcelWriter(excel_path1) as writer:
     df3.to_excel(writer, index=False, sheet_name='VALOR_ITENS')
     df4.to_excel(writer, index=False, sheet_name='TITULOS_PAGO')
     df5.to_excel(writer, index=False, sheet_name='TITULOS_NÃO_PAGO')
+    m.to_excel(writer, index=False, sheet_name='TODOS_TITULOS')
