@@ -15,7 +15,7 @@ SELECT2 = 'select PDV_NUMERO, PDV_DATA, PDV_CLI_CODIGO, PDV_PSI_CODIGO, PDV_CON_
             % (TABLE_NAME2)
 SELECT3 = 'select PVI_NUMERO, PVI_QUANTIDADE, PVI_VL_CUSTO_ITEM from %s ' \
             % (TABLE_NAME3)
-SELECT4 = 'select PAG_IDENTIFICADOR, PAG_CLI_CODIGO, PAG_VALORTITULO, PAG_VENCIMENTO, PAG_STL_CODIGO from %s ' \
+SELECT4 = 'select PAG_IDENTIFICADOR, PAG_CLI_CODIGO, PAG_VALORTITULO, PAG_VENCIMENTO, PAG_STL_CODIGO, PAG_PLA_CAIXA from %s ' \
             % (TABLE_NAME4)
 SELECT5 = 'select CLI_NOME, CLI_CODIGO from %s' % (TABLE_NAME5)
 ########################################################################
@@ -64,6 +64,10 @@ df5.loc[df4[4] != 6, 4] = 'NÃO PAGO'
 df4 = df4[df4[4] == 6]
 df4.loc[df4[4] == 6, 4] = 'PAGO'
 ########################################################################
+for x in df6.loc[5]:
+     df6[5] = df6[5].replace([0,3,12,13,14,15,16,17,18,19,21], ['FORNECEDOR','TRANSFERENCIA','FUNCIONARIO','ENTREGAS',
+                                                                'SOCIOS','FORNECEDOR', 'LOJA', 'FISCAL','BANCO',
+                                                                'DIVERSAS', 'FIXAS'])
 
 m = pd.merge(df6, df7, how='inner', on=1)
 
